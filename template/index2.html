@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block head %}
+
+<style>
+    body{
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<form action="update/{{key}}" method="POST">
+    <input type="text" name="newtask" placeholder="Task">
+    <button>Submit</button>    
+</form>
+{% endblock %}
