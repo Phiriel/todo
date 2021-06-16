@@ -1,54 +1,42 @@
+import csv
 from flask import Flask, render_template, request
-import datetime
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.utils import redirect
 
+app = Flask(__name__,template_folder="template", static_folder="styles")
 
-app = Flask(__name__,template_folder="template")
-
-lists = []
-
-id=0
+engine = create_engine('postgresql://postgres:Naruto123@localhost:5432/postgres')
+db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/", methods=["GET","POST"])
 def index():
-    global id
-    if request.method=="POST":
-        task=request.form.get("task")
-        time=request.form.get("time")
-        if((task!=None) and (time!=None)):
-            items={}
-            items["task"]=task
-            items["time"]=time
-            items["id"]=id
-            id=id+1
-            lists.append(items)
-        return render_template("index.html",lists=lists)
-            
-    else:
-        return render_template("index.html",lists=lists)
+    students = db.execute("SELECT * FROM todo").fetchall()
+    return render_template('list.html',students=students)  
 
-@app.route("/delete/<int:key>")
-def delete(key):
-    for i in range(len(lists)):
-        if (lists[i]["id"] == key):
-            lists.pop(i)
-            return redirect("/")
+@app.route("/add", methods=["POST","GET"])
+def add():
+    task=request.form.get("task")
+    time=request.form.get("time")
+    db.execute("INSERT INTO todo (task,time) VALUES(:task,:time)", {"task":task,"time":time})
+    db.commit()
     return redirect("/")
 
 @app.route("/updateform/<int:key>", methods=["GET","POST"])
 def form(key):
-        return render_template("index2.html",key=key) 
+    return render_template("update.html",key=key) 
 
-@app.route("/updateform/update/<int:key>", methods=["GET","POST"])
+@app.route("/update/<int:key>", methods=["GET","POST"])
 def update(key):
     newtask=request.form.get("newtask")
-    for i in range(len(lists)):
-        if (lists[i]["id"] == key):
-            lists[i]["task"] == newtask
-            return redirect("/")
-    return redirect("/")        
-        
-    
+    db.execute(f"UPDATE todo SET task=(:task) WHERE id={key}",{"task":newtask})
+    db.commit()
+    return redirect("/")
+
+@app.route("/delete/<int:key>", methods=["GET","POST"])
+def delete(key):
+    db.execute(f"DELETE FROM todo WHERE id={key}")
+    db.commit()
+    return redirect("/")
 
 app.run(debug=True)

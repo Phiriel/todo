@@ -1,9 +1,22 @@
 {% extends "layout.html" %}
 {% block head %}
+<title>Todo_List</title>
 
 <style>
     body{
+        background-color: cornsilk;
         text-align: center;
+        padding: 10%;
+    }
+    table,form{
+        background-color: white;
+        border: 5px solid black;
+        border-collapse: collapse;
+        width:30%;
+    }
+    td{
+        border: 1px solid black;
+        width: 50%;
     }
 </style>
 {% endblock %}
@@ -11,25 +24,26 @@
 {% block body %}
 
     <table border="1" align="center">
-        {% for i in lists %}
+        {% for i in students %}
     <tr>
         <td>
-            {{i["task"]}}
+            {{i.task}}
         </td>
         <td>
-            {{i["time"]}}
+            {{i.time}}
         </td>
         <td>
-            <a href="/delete/{{i['id']}}">Delete</a><br>
-            <a href="/updateform/{{i['id']}}">Update</a>
+            <a href="/delete/{{i.id}}">Delete</a><br>
+            <a href="/updateform/{{i.id}}">Update</a>
         </td>
     </tr>
         {% endfor %}
+        <form action="{{ url_for('add') }}" method="POST">
+            <input type="text" name="task" placeholder="Task">
+            <input type="number" name="time">
+            <button>Submit</button>    
+        </form>
+        <hr>
     </table>
         
-    <form action="{{ url_for('index') }}" method="POST">
-        <input type="text" name="task" placeholder="Task">
-        <input type="time" name="time">
-        <button>Submit</button>    
-    </form>
 {% endblock %}
