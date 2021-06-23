@@ -6,7 +6,7 @@ from werkzeug.utils import redirect
 
 app = Flask(__name__,template_folder="template", static_folder="styles")
 
-engine = create_engine('postgresql://postgres:Naruto123@localhost:5432/postgres')
+engine = create_engine('DATABASE_URL')
 db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/", methods=["GET","POST"])
